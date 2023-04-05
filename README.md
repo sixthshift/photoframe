@@ -4,7 +4,7 @@ This project turns your Raspberry Pi into a photo frame using a Waveshare 7-inch
 
 ## Hardware
 - Raspberry Pi Zero W
-- Waveshare 7-inch e-ink display
+- Waveshare 7.5-inch e-ink display
 - MicroSD card
 
 ## OS Installation
