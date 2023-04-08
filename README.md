@@ -1,6 +1,6 @@
 # Raspberry Pi Photo Frame
 
-This project turns your Raspberry Pi into a photo frame using a Waveshare 7-inch e-ink display. The Python script displays photos from a specified directory and allows you to navigate through them using two push buttons.
+This project turns your Raspberry Pi into a photo frame using a Waveshare 7.5-inch e-ink display.
 
 ## Hardware
 - Raspberry Pi Zero W
@@ -29,6 +29,8 @@ This project turns your Raspberry Pi into a photo frame using a Waveshare 7-inch
 	sudo apt update
 	sudo apt upgrade
 	sudo apt install git
+	sudo apt install nodejs
+	sudo apt install npm
 	sudo apt install python3-pip
 	sudo pip3 install RPi.GPIO
 	sudo pip3 install spidev

@@ -1,0 +1,21 @@
+version: "3"
+
+name: photoframe
+
+services:
+  dev:
+    image: node:lts-alpine
+    working_dir: /usr/src/${PROJECT_NAME}
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - /usr/src/${PROJECT_NAME}/node_modules
+      - .:/usr/src/${PROJECT_NAME}
+
+    entrypoint: sh -c
+      "
+      apk add git;
+      tail -f /dev/null;
+      "

@@ -9,9 +9,8 @@ from frame import Frame
 logging.basicConfig(level=logging.DEBUG)
 
 try:
-
     frame = Frame()
-    frame.draw("img9.jpeg")
+    frame.render("img7.jpeg")
     # frame.clear()
     frame.sleep()
     # logging.info("epd7in5_V2 Demo")

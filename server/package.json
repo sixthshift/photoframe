@@ -1,0 +1,12 @@
+{
+	"name": "photoframe-server",
+	"version": "0.0.1",
+	"description": "A web server for managing photos to display on the photoframe",
+	"main": "index.js",
+	"author": "Jason Huang <sixth.shifts@gmail.com>",
+	"license": "MIT",
+	"private": true,
+	"dependencies": {},
+	"devDependencies": {},
+	"scripts": {}
+}
