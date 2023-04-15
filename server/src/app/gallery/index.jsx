@@ -1,16 +1,25 @@
 import React, { useContext } from 'react'
 import PhotoAlbum from 'react-photo-album'
 
-import { PhotoContext } from '../photos'
-import RenderPhoto from './renderPhoto'
+import { PhotoContext } from '../photoProvider'
+import Editor from '../editor'
 
 export default function Gallery () {
-  const [photos] = useContext(PhotoContext)
+  const {
+    gallery: [gallery],
+    photo: [, setPhoto]
+  } = useContext(PhotoContext)
+
   return (
+    <>
       <PhotoAlbum
         layout="masonry"
-        photos={photos}
-        // renderPhoto={RenderPhoto}
+        photos={gallery}
+        onClick={({ photo }) => {
+          setPhoto(photo)
+        }}
       />
+      <Editor />
+    </>
   )
 }

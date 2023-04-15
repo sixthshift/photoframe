@@ -1,7 +1,7 @@
 import React, { useContext, useRef } from 'react'
 import { Button } from 'react-bootstrap'
 
-import { PhotoContext } from '../photos'
+import { PhotoContext } from '../photoProvider'
 
 const isValidPhoto = (file) => {
   return new Promise((resolve, reject) => {
@@ -29,16 +29,17 @@ const uploadPhoto = async (photo) => {
 }
 
 export default function Upload () {
-  const [, setPhotos] = useContext(PhotoContext)
+  const [, setGallery] = useContext(PhotoContext).gallery
   const fileInput = useRef(null)
 
   const onUpload = (event) => {
     Array.from(event.target.files).forEach((file) => {
       isValidPhoto(file)
         .then(uploadPhoto)
-        .then(setPhotos)
+        .then(setGallery)
         .catch((err) => { console.error(err) })
     })
+    fileInput.current.value = ''
   }
 
   return (

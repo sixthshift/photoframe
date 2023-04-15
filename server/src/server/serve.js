@@ -8,13 +8,20 @@ const port = process.env.PORT || 3000
 module.exports = (gallery) => {
   const app = express()
 
+  app.use(express.json())
+
   app.use(express.static(path.resolve('public')))
 
   app.use('/photo', express.static(gallery.directory))
 
   app.get('/photo', async (_, res) => {
     app.locals.photo ??= await gallery.randomPhoto()
-    res.sendFile(app.locals.photo)
+    res.sendFile(app.locals.photo.path)
+  })
+
+  app.post('/display', (req, res) => {
+    app.locals.photo = req.body
+    res.json(req.body)
   })
 
   app.get('/metadata', async (_, res) => {

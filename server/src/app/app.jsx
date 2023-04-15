@@ -1,8 +1,9 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
+import './styles.css'
 import React from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 
-import PhotoProvider from './photos'
+import PhotoProvider from './photoProvider'
 
 import Actions from './actions'
 import Gallery from './gallery'

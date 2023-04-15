@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
@@ -13,12 +14,14 @@ module.exports = class Gallery {
         .map(async (filename) => {
           const absolutePath = path.join(this.directory, filename)
           try {
-            const photo = await sharp(absolutePath).metadata()
+            const metadata = await sharp(absolutePath).metadata()
+            const hash = crypto.createHash('md5').update(JSON.stringify(metadata)).digest('hex')
             return {
-              src: path.join('photo', filename),
+              name: filename,
+              src: path.join('photo', filename) + '?' + hash,
               path: absolutePath,
-              width: photo.width,
-              height: photo.height
+              width: metadata.width,
+              height: metadata.height
             }
           } catch (error) {
             console.error(absolutePath + ' ' + error)
@@ -29,7 +32,7 @@ module.exports = class Gallery {
 
   async randomPhoto () {
     const metadata = await this.metadata()
-    return metadata[Math.floor(Math.random() * metadata.length)].path
+    return metadata[Math.floor(Math.random() * metadata.length)]
   }
 
   write (filename, data) {
