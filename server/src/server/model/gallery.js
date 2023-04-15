@@ -6,10 +6,17 @@ const sharp = require('sharp')
 module.exports = class Gallery {
   constructor (directory) {
     this.directory = directory
+    if (!fs.existsSync(this.directory)) {
+      console.info(`Creating directory at ${this.directory}`)
+      fs.mkdirSync(this.directory, {recursive: true})
+    }
+    if (!fs.lstatSync(this.directory).isDirectory()) {
+      throw new Error(`${this.directory} is not a directory`)
+    }
   }
 
   async metadata () {
-    return await Promise.all(
+    return (await Promise.all(
       fs.readdirSync(this.directory)
         .map(async (filename) => {
           const absolutePath = path.join(this.directory, filename)
@@ -24,10 +31,11 @@ module.exports = class Gallery {
               height: metadata.height
             }
           } catch (error) {
-            console.error(absolutePath + ' ' + error)
+            console.debug(absolutePath + ' ' + error)
+            return undefined
           }
         })
-    )
+    )).filter(data => !!data)
   }
 
   async randomPhoto () {
