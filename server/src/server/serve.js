@@ -30,7 +30,12 @@ module.exports = (gallery) => {
 
   app.post('/upload', uploadMiddleware, async (req, res) => {
     gallery.write(req.file.filename, req.file.data)
-    res.redirect('/metadata')
+    res.json(await gallery.metadata())
+  })
+
+  app.post('/delete', async (req, res) => {
+    gallery.delete(req.body.filename)
+    res.json(await gallery.metadata())
   })
 
   app.listen(port, () => {

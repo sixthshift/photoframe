@@ -39,4 +39,9 @@ module.exports = class Gallery {
     const absolutePath = path.join(this.directory, filename)
     fs.writeFileSync(absolutePath, data)
   }
+
+  delete (filename) {
+    const absolutePath = path.join(this.directory, filename)
+    fs.unlinkSync(absolutePath)
+  }
 }

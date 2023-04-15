@@ -6,8 +6,8 @@ export default function ({ photo, onClose, onSave, onDisplay, onDelete }) {
     tabsIds: [TABS.ADJUST, TABS.FINETUNE, TABS.FILTERS, TABS.ANNOTATE],
     defaultTabId: TABS.ADJUST,
     onBeforeSave: () => false,
-    onSave: (args) => {
-      onSave(args)
+    onSave: (imageData) => {
+      onSave(imageData)
         .then(onDisplay)
         .then(onClose)
     },
@@ -38,18 +38,21 @@ export default function ({ photo, onClose, onSave, onDisplay, onDelete }) {
     moreSaveOptions: [
       {
         label: 'Save',
-        onClick: (args) => {
-          onSave(args)
-            .then(onClose)
+        onClick: (_, triggerSave) => {
+          triggerSave((imageData) => {
+            onSave(imageData)
+              .then(onClose)
+          })
         }
       },
       {
         label: 'Delete',
-        onClick: (args) => {
-          onDelete(args)
-          onClose()
+        onClick: (_, triggerSave) => {
+          triggerSave((imageData) => {
+            onDelete(imageData)
+              .then(onClose)
+          })
         }
-
       }
     ]
   }

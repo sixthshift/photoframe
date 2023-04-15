@@ -31,6 +31,17 @@ export default function Editor () {
       .then(response => response.json())
   }
 
+  const deletePhoto = async (filename) => {
+    return fetch('delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ filename })
+    })
+      .then(response => response.json())
+  }
+
   return photo
     ? <EditorModal>
       <ImageEditor
@@ -46,7 +57,7 @@ export default function Editor () {
               .then(uploadPhoto)
               .then((metadata) => {
                 setGallery(metadata)
-                return metadata.find((photo) => photo.name === imageData.fullName)
+                return metadata.find((photoMetadata) => photoMetadata.name === imageData.fullName)
               })
               .catch((err) => { console.error(err) })
           },
@@ -59,7 +70,10 @@ export default function Editor () {
               body: JSON.stringify(photo)
             })
           },
-          onDelete: () => {}
+          onDelete: (imageData) => {
+            return deletePhoto(imageData.fullName)
+              .then(setGallery)
+          }
         })
       }
       />
