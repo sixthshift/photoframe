@@ -29,8 +29,6 @@ This project turns your Raspberry Pi into a photo frame using a Waveshare 7.5-in
 	sudo apt update
 	sudo apt upgrade
 	sudo apt install git
-	sudo apt install nodejs
-	sudo apt install npm
 	sudo apt install python3-pip
 	sudo pip3 install RPi.GPIO
 	sudo pip3 install spidev
@@ -43,6 +41,10 @@ This project turns your Raspberry Pi into a photo frame using a Waveshare 7.5-in
 3. Clone this repository onto your Raspberry Pi
 	```
 	git clone git@github.com:sixthshift/photo-frame.git
+	```
+4. Run `install.sh` to set up the Node environment
+	```
+	sh install.sh
 	```
 4. Open `/etc/rc.local` and add the following before the `exit 0` line
 	```
