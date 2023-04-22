@@ -16,7 +16,7 @@ module.exports = (gallery, frame) => {
 
   app.get('/photo', async (_, res) => {
     app.locals.photo ??= await gallery.randomPhoto()
-    res.sendFile(app.locals.photo.path)
+    res.sendFile(path.format(app.locals.photo.path))
   })
 
   app.post('/display', (req, res) => {

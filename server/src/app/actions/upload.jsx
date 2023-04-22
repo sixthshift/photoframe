@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react'
 import { Button } from 'react-bootstrap'
 
 import { PhotoContext } from '../photoProvider'
+import api from '../api'
 
 const isValidPhoto = (file) => {
   return new Promise((resolve, reject) => {
@@ -20,14 +21,6 @@ const isValidPhoto = (file) => {
   })
 }
 
-const uploadPhoto = async (photo) => {
-  const formData = new FormData()
-  formData.append('photo', photo)
-
-  return fetch('upload', { method: 'POST', body: formData })
-    .then(response => response.json())
-}
-
 export default function Upload () {
   const [, setGallery] = useContext(PhotoContext).gallery
   const fileInput = useRef(null)
@@ -35,7 +28,7 @@ export default function Upload () {
   const onUpload = (event) => {
     Array.from(event.target.files).forEach((file) => {
       isValidPhoto(file)
-        .then(uploadPhoto)
+        .then(api.upload)
         .then(setGallery)
         .catch((err) => { console.error(err) })
     })

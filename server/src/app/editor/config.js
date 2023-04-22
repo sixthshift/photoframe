@@ -3,6 +3,8 @@ import { TABS } from 'react-filerobot-image-editor'
 export default function ({ photo, onClose, onSave, onDisplay, onDelete }) {
   return {
     source: photo.src,
+    defaultSavedImageName: photo.path.name,
+    defaultSavedImageType: photo.path.ext.replace('.', ''),
     tabsIds: [TABS.ADJUST, TABS.FINETUNE, TABS.FILTERS, TABS.ANNOTATE],
     defaultTabId: TABS.ADJUST,
     onBeforeSave: () => false,
@@ -46,7 +48,7 @@ export default function ({ photo, onClose, onSave, onDisplay, onDelete }) {
         }
       },
       {
-        label: 'Delete',
+        label: photo.original ? 'Reset' : 'Delete',
         onClick: (_, triggerSave) => {
           triggerSave((imageData) => {
             onDelete(imageData)

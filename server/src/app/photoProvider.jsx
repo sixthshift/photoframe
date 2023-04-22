@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { createContext, useEffect, useState } from 'react'
+import api from './api'
 
 export const PhotoContext = createContext(null)
 
@@ -13,8 +14,7 @@ export default function PhotoProvider ({ children }) {
   }
 
   useEffect(() => {
-    fetch('metadata')
-      .then((response) => response.json())
+    api.metadata()
       .then((data) => setGallery(data))
       .catch((error) => console.error(error))
   }, [])

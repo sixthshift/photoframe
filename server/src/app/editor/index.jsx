@@ -5,7 +5,13 @@ import { Modal } from 'react-bootstrap'
 
 import { PhotoContext } from '../photoProvider'
 
-import config from './config'
+import Config from './config'
+import api from '../api'
+
+function dataUrlToBlob (dataUrl) {
+  return fetch(dataUrl)
+    .then(response => response.blob())
+}
 
 const EditorModal = ({ title = '', children }) => {
   const [photo, setPhoto] = useContext(PhotoContext).photo
@@ -22,61 +28,36 @@ const EditorModal = ({ title = '', children }) => {
 
 export default function Editor () {
   const { gallery: [, setGallery], photo: [photo, setPhoto] } = useContext(PhotoContext)
-
-  const uploadPhoto = async (photo) => {
-    const formData = new FormData()
-    formData.append('photo', photo)
-
-    return fetch('upload', { method: 'POST', body: formData })
-      .then(response => response.json())
-  }
-
-  const deletePhoto = async (filename) => {
-    return fetch('delete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+  if (photo) {
+    const config = Config({
+      photo,
+      onClose: () => {
+        setPhoto(null)
       },
-      body: JSON.stringify({ filename })
+      onSave: (imageData) => {
+        const newPath = photo.path.name.endsWith('_edited') ? (photo.path.name + photo.path.ext) : photo.path.name + '_edited' + '.png'
+        return dataUrlToBlob(imageData.imageBase64)
+          .then(blob => { return new File([blob], newPath, { type: blob.type }) })
+          .then(api.upload)
+          .then((metadata) => {
+            setGallery(metadata)
+            return metadata.find((photoMetadata) => photoMetadata.name === newPath)
+          })
+          .catch((err) => { console.error(err) })
+      },
+      onDisplay: api.display,
+      onDelete: (imageData) => {
+        return api.delete(imageData.fullName)
+          .then(setGallery)
+      }
     })
-      .then(response => response.json())
-  }
 
-  return photo
-    ? <EditorModal>
-      <ImageEditor
-        {...config({
-          photo,
-          onClose: () => {
-            setPhoto(null)
-          },
-          onSave: (imageData) => {
-            return fetch(imageData.imageBase64)
-              .then(response => response.blob())
-              .then(blob => { return new File([blob], decodeURIComponent(imageData.fullName), { type: blob.type }) })
-              .then(uploadPhoto)
-              .then((metadata) => {
-                setGallery(metadata)
-                return metadata.find((photoMetadata) => photoMetadata.name === decodeURIComponent(imageData.fullName))
-              })
-              .catch((err) => { console.error(err) })
-          },
-          onDisplay: (photo) => {
-            return fetch('display', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(photo)
-            })
-          },
-          onDelete: (imageData) => {
-            return deletePhoto(imageData.fullName)
-              .then(setGallery)
-          }
-        })
-        }
-      />
-    </EditorModal>
-    : null
+    return (
+      <EditorModal>
+        <ImageEditor {...config} />
+      </EditorModal>
+    )
+  } else {
+    return null
+  }
 }

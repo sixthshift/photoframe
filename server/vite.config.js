@@ -1,5 +1,6 @@
 module.exports = {
   build: {
-    outDir: 'public'
+    outDir: 'public',
+    sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false
   }
 }

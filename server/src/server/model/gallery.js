@@ -18,28 +18,48 @@ module.exports = class Gallery {
     console.info('Photoframe directory: ' + this.directory)
   }
 
-  async metadata () {
-    return (await Promise.all(
-      fs.readdirSync(this.directory)
-        .map(async (filename) => {
-          const absolutePath = path.join(this.directory, filename)
-          try {
-            const metadata = await sharp(absolutePath).metadata()
-            const hash = crypto.createHash('md5').update(JSON.stringify(metadata)).digest('hex')
+  async metadatum (filePath) {
+    const metadata = await sharp(filePath).metadata()
+    const hash = crypto.createHash('md5').update(JSON.stringify(metadata)).digest('hex')
+    const parsed = path.parse(filePath)
 
-            return {
-              name: filename,
-              src: new URL({ path: ['photo', filename], options: { hash } }).toURL(),
-              path: absolutePath,
-              width: metadata.width,
-              height: metadata.height
+    return {
+      name: parsed.base,
+      src: new URL({ path: ['photo', parsed.base], options: { hash } }).toURL(),
+      path: parsed,
+      width: metadata.width,
+      height: metadata.height
+    }
+  }
+
+  async metadata () {
+    return (
+      await Promise.all(
+        fs.readdirSync(this.directory)
+          .filter(filename => !path.parse(filename).name.endsWith('_edited'))
+          .map(async (filename) => {
+            const absolutePath = path.join(this.directory, filename)
+            try {
+              const metadatum = await this.metadatum(absolutePath)
+              try {
+                const editedPath = { ...metadatum.path }
+                editedPath.name += '_edited'
+                editedPath.base = editedPath.name + '.png'
+                const editedMetaDatum = await this.metadatum(path.format(editedPath))
+                editedMetaDatum.original = metadatum
+                return editedMetaDatum
+              } catch (error) {
+                // Errors here are fine, as we do not expect all images to have edits
+                return metadatum
+              }
+            } catch (error) {
+              console.debug(absolutePath + ' ' + error)
+              return undefined
             }
-          } catch (error) {
-            console.debug(absolutePath + ' ' + error)
-            return undefined
-          }
-        })
-    )).filter(data => !!data)
+          })
+      )
+    )
+      .filter(data => !!data)
   }
 
   async randomPhoto () {
