@@ -53,11 +53,11 @@ export default function Editor () {
           onSave: (imageData) => {
             return fetch(imageData.imageBase64)
               .then(response => response.blob())
-              .then(blob => { return new File([blob], imageData.fullName, { type: blob.type }) })
+              .then(blob => { return new File([blob], decodeURIComponent(imageData.fullName), { type: blob.type }) })
               .then(uploadPhoto)
               .then((metadata) => {
                 setGallery(metadata)
-                return metadata.find((photoMetadata) => photoMetadata.name === imageData.fullName)
+                return metadata.find((photoMetadata) => photoMetadata.name === decodeURIComponent(imageData.fullName))
               })
               .catch((err) => { console.error(err) })
           },
@@ -75,7 +75,7 @@ export default function Editor () {
               .then(setGallery)
           }
         })
-      }
+        }
       />
     </EditorModal>
     : null

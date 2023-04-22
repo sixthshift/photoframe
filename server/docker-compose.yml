@@ -13,7 +13,7 @@ services:
       - ${PORT}:${PORT}
     volumes:
       - /usr/src/${PROJECT_NAME}/node_modules
-      - .:/usr/src/${PROJECT_NAME}
+      - ..:/usr/src/${PROJECT_NAME}
 
     entrypoint: sh -c
       "

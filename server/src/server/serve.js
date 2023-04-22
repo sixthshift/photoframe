@@ -5,7 +5,7 @@ const uploadMiddleware = require('./middleware/uploadMiddleware')
 
 const port = process.env.PORT || 3000
 
-module.exports = (gallery) => {
+module.exports = (gallery, frame) => {
   const app = express()
 
   app.use(express.json())
@@ -21,7 +21,9 @@ module.exports = (gallery) => {
 
   app.post('/display', (req, res) => {
     app.locals.photo = req.body
-    res.json(req.body)
+    const url = req.headers.origin + '/' + req.body.src
+    frame.display({ url, orientation: 'landscape' })
+    res.sendStatus(200)
   })
 
   app.get('/metadata', async (_, res) => {
@@ -29,7 +31,7 @@ module.exports = (gallery) => {
   })
 
   app.post('/upload', uploadMiddleware, async (req, res) => {
-    gallery.write(req.file.filename, req.file.data)
+    gallery.write(decodeURIComponent(req.file.filename), req.file.data)
     res.json(await gallery.metadata())
   })
 
@@ -39,6 +41,6 @@ module.exports = (gallery) => {
   })
 
   app.listen(port, () => {
-    console.info(`Photo frame server started on port ${port}`)
+    console.info(`Photoframe server started on port ${port}`)
   })
 }

@@ -30,7 +30,7 @@
 	"scripts": {
 		"build": "vite build --config vite.config.js",
 		"predev": "npm run build",
-		"dev": "node ./src/server",
+		"dev": "node ./src/server /usr/src/photoframe/photos",
 		"serve": "node ./src/server"
 	}
 }

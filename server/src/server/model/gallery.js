@@ -3,16 +3,19 @@ const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
 
+const URL = require('./url')
+
 module.exports = class Gallery {
   constructor (directory) {
     this.directory = directory
     if (!fs.existsSync(this.directory)) {
       console.info(`Creating directory at ${this.directory}`)
-      fs.mkdirSync(this.directory, {recursive: true})
+      fs.mkdirSync(this.directory, { recursive: true })
     }
     if (!fs.lstatSync(this.directory).isDirectory()) {
       throw new Error(`${this.directory} is not a directory`)
     }
+    console.info('Photoframe directory: ' + this.directory)
   }
 
   async metadata () {
@@ -23,9 +26,10 @@ module.exports = class Gallery {
           try {
             const metadata = await sharp(absolutePath).metadata()
             const hash = crypto.createHash('md5').update(JSON.stringify(metadata)).digest('hex')
+
             return {
               name: filename,
-              src: path.join('photo', filename) + '?' + hash,
+              src: new URL({ path: ['photo', filename], options: { hash } }).toURL(),
               path: absolutePath,
               width: metadata.width,
               height: metadata.height
