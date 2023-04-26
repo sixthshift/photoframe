@@ -53,7 +53,7 @@ module.exports = (gallery, frame) => {
 
   cron.schedule('0 0 0 * * *', async () => {
     app.locals.photo = await gallery.randomPhoto()
-    const url = 'localhost:' + port + '/' + app.locals.photo.src
+    const url = 'http://localhost:' + port + '/' + app.locals.photo.src
     const timeStamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })
     console.info(`Scheduled refresh | ${timeStamp}`)
     frame.display({ url, orientation: 'landscape' })

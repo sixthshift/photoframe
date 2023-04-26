@@ -48,7 +48,7 @@ This project turns your Raspberry Pi into a photo frame using a Waveshare 7.5-in
 	```
 4. Open `/etc/rc.local` and add the following before the `exit 0` line
 	```
-	/usr/bin/python3 /home/admin/photo-frame/photo_frame.py &
+	cd /home/admin/photoframe && sudo bash run.sh &
 	```
 5. Reboot the Raspberry Pi, the photo frame software automatically upon boot.
 	```
