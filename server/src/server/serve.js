@@ -1,22 +1,24 @@
+const cron = require('node-cron')
 const path = require('path')
 const express = require('express')
 
 const uploadMiddleware = require('./middleware/uploadMiddleware')
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 80
 
 module.exports = (gallery, frame) => {
   const app = express()
-
   app.use(express.json())
 
   app.use(express.static(path.resolve('public')))
-
   app.use('/photo', express.static(gallery.directory))
 
   app.get('/photo', async (_, res) => {
-    app.locals.photo ??= await gallery.randomPhoto()
-    res.sendFile(path.format(app.locals.photo.path))
+    if (app.locals.photo) {
+      res.sendFile(path.format(app.locals.photo.path))
+    } else {
+      res.sendStatus(503)
+    }
   })
 
   app.post('/display', (req, res) => {
@@ -43,4 +45,17 @@ module.exports = (gallery, frame) => {
   app.listen(port, () => {
     console.info(`Photoframe server started on port ${port}`)
   })
+
+  gallery.randomPhoto()
+    .then((photo) => {
+      app.locals.photo = photo
+    })
+
+  cron.schedule('0 0 0 * * *', async () => {
+    app.locals.photo = await gallery.randomPhoto()
+    const url = 'localhost:' + port + '/' + app.locals.photo.src
+    const timeStamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })
+    console.info(`Scheduled refresh | ${timeStamp}`)
+    frame.display({ url, orientation: 'landscape' })
+  }).start()
 }

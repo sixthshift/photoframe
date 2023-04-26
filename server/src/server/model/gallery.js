@@ -20,7 +20,7 @@ module.exports = class Gallery {
 
   async metadatum (filePath) {
     const metadata = await sharp(filePath).metadata()
-    const hash = crypto.createHash('md5').update(JSON.stringify(metadata)).digest('hex')
+    const hash = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex')
     const parsed = path.parse(filePath)
 
     return {

@@ -18,6 +18,7 @@ export default function Gallery () {
         onClick={({ photo }) => {
           setPhoto(photo)
         }}
+        spacing={5}
       />
       <Editor />
     </>
