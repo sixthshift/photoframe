@@ -1,0 +1,14 @@
+[Unit]
+Description=Photo Frame Display Service
+After=network.target
+
+[Service]
+Type=simple
+User=%USER%
+WorkingDirectory=%WORKDIR%
+ExecStart=/bin/bash %WORKDIR%/run.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target 
