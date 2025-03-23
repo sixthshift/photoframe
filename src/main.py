@@ -7,6 +7,8 @@ import os
 import hashlib
 import time
 import signal
+from configparser import ConfigParser
+from management import start_server
 
 # Import directly from frame and webpage modules
 from frame import Frame
@@ -79,24 +81,61 @@ def wait_for_next_update(interval):
         time.sleep(chunk)
         remaining -= chunk
 
-def main():
-    parser = argparse.ArgumentParser(description='Render webpage on e-ink display')
-    parser.add_argument('--url', type=str, required=True, help='URL of webpage to render')
-    parser.add_argument('--interval', type=int, default=0, help='Update interval in seconds (0 = run once)')
-    args = parser.parse_args()
+def refresh_display():
+    """Function to refresh the display on demand"""
+    global renderer, frame, url
+    try:
+        logging.info(f"Manual refresh triggered for URL: {url}")
+        image = renderer.capture(url)
+        frame.render(image)
+        logging.info("Manual refresh complete")
+    except Exception as e:
+        logging.error(f"Error during manual refresh: {e}")
 
+def main():
+    global url, renderer, frame
+    
+    # Read from config file first
+    config_parser = ConfigParser()
+    if os.path.exists('config.ini'):
+        config_parser.read('config.ini')
+        url = config_parser.get('DEFAULT', 'URL', fallback=None)
+        interval = config_parser.getint('DEFAULT', 'INTERVAL', fallback=3600)
+    else:
+        url = None
+        interval = 3600
+    
+    # Command line arguments override config file
+    parser = argparse.ArgumentParser(description='Render webpage on e-ink display')
+    parser.add_argument('--url', type=str, help='URL of image to render')
+    parser.add_argument('--interval', type=int, default=interval, help='Update interval in seconds (0 = run once)')
+    parser.add_argument('--port', type=int, default=80, help='Port for management server')
+    args = parser.parse_args()
+    
+    # Command line args take precedence
+    if args.url:
+        url = args.url
+    
+    # If no URL provided in config or command line, exit
+    if not url:
+        logging.error("No URL provided. Please specify in config.ini or with --url")
+        sys.exit(1)
+    
     # Register signal handler for Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
     
     # Create renderer and frame
-    renderer = Webpage()
+    renderer = Webpage(width=Frame.WIDTH, height=Frame.HEIGHT)
     frame = Frame()
+    
+    # Start management server
+    start_server(refresh_callback=refresh_display, port=args.port)
     
     # Run once or continuously based on interval
     if args.interval <= 0:
-        render_once(args.url, renderer, frame)
+        render_once(url, renderer, frame)
     else:
-        auto_update(args.url, args.interval, renderer, frame)
+        auto_update(url, args.interval, renderer, frame)
 
 if __name__ == '__main__':
     main() 

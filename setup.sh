@@ -51,6 +51,9 @@ else
     echo "SPI interface was already enabled."
 fi
 
+echo "Creating directories for management interface..."
+mkdir -p templates static
+chmod -R 755 templates static
 
 echo "[5/6] Setting permissions..."
 # Make scripts executable
@@ -79,6 +82,9 @@ sudo systemctl status ${SERVICE_NAME}.service --no-pager
 
 # Create logs directory
 mkdir -p logs
+
+echo "Setting proper permissions for logs directory..."
+chmod 777 logs
 
 echo "========================================"
 echo "Setup completed successfully!"
