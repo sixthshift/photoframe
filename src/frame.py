@@ -14,12 +14,15 @@ class Frame:
         self.last_image_hash = None
         
         # Render a blank image
-        self.render(Image.new('1', (self.WIDTH, self.HEIGHT), 255))
+        self.clear()
         
     def _hash_image(self, image):
         """Generate a hash for the image to detect changes"""
         # Convert PIL image to bytes directly and hash it
         return hashlib.md5(image.tobytes()).hexdigest()
+
+    def clear(self):
+        self.render(Image.new('1', (self.WIDTH, self.HEIGHT), 255))
         
     def render(self, image):
         # Calculate hash of the new image
@@ -28,6 +31,7 @@ class Frame:
         # Only render if the image has changed
         if hash != self.last_image_hash:
             logging.info("Image changed, rendering to e-ink display")
+            self.clear()
             # Convert the provided image for the e-ink display
             buffer = self.epd.getbuffer(image)
             # Display on the e-ink screen
