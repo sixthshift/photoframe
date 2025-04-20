@@ -22,7 +22,7 @@ class Frame:
         return hashlib.md5(image.tobytes()).hexdigest()
 
     def clear(self):
-        self.render(Image.new('1', (self.WIDTH, self.HEIGHT), 255))
+        self.write_to_display(Image.new('1', (self.WIDTH, self.HEIGHT), 255))
         
     def render(self, image):
         # Calculate hash of the new image
@@ -32,14 +32,17 @@ class Frame:
         if hash != self.last_image_hash:
             logging.info("Image changed, rendering to e-ink display")
             self.clear()
-            # Convert the provided image for the e-ink display
-            buffer = self.epd.getbuffer(image)
-            # Display on the e-ink screen
-            self.epd.display(buffer)
+            self.write_to_display(image)
             # Update the last image hash
             self.last_image_hash = hash
         else:
             logging.info("Image unchanged, skipping rendering")
+
+    def write_to_display(self, image):
+        # Convert the provided image for the e-ink display
+        buffer = self.epd.getbuffer(image)
+        # Display on the e-ink screen
+        self.epd.display(buffer)
         
     def sleep(self):
         # Put the display into sleep mode to conserve power

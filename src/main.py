@@ -7,12 +7,26 @@ import os
 import hashlib
 import time
 import signal
+import traceback
 
 # Import directly from frame and webpage modules
 from frame import Frame
 from webpage import Webpage
 
-logging.basicConfig(level=logging.DEBUG)
+# Set up logging to file as well as console
+log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "photoframe.log")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 # Flag to handle graceful shutdown
 running = True
@@ -33,6 +47,7 @@ def render_once(url, renderer, frame):
         logging.info("Webpage rendered successfully")
     except Exception as e:
         logging.error(f"Error: {e}")
+        logging.error(traceback.format_exc())
     finally:
         logging.info("Finished rendering webpage")
 
@@ -80,23 +95,44 @@ def wait_for_next_update(interval):
         remaining -= chunk
 
 def main():
-    parser = argparse.ArgumentParser(description='Render webpage on e-ink display')
-    parser.add_argument('--url', type=str, required=True, help='URL of webpage to render')
-    parser.add_argument('--interval', type=int, default=0, help='Update interval in seconds (0 = run once)')
-    args = parser.parse_args()
+    try:
+        parser = argparse.ArgumentParser(description='Render webpage on e-ink display')
+        parser.add_argument('--url', type=str, required=True, help='URL of webpage to render')
+        parser.add_argument('--interval', type=int, default=0, help='Update interval in seconds (0 = run once)')
+        args = parser.parse_args()
 
-    # Register signal handler for Ctrl+C
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    # Create renderer and frame
-    renderer = Webpage()
-    frame = Frame()
-    
-    # Run once or continuously based on interval
-    if args.interval <= 0:
-        render_once(args.url, renderer, frame)
-    else:
-        auto_update(args.url, args.interval, renderer, frame)
+        # Log startup information
+        logging.info(f"Starting photoframe application")
+        logging.info(f"Python version: {sys.version}")
+        logging.info(f"URL: {args.url}")
+        logging.info(f"Interval: {args.interval} seconds")
+        
+        # Register signal handler for Ctrl+C
+        signal.signal(signal.SIGINT, signal_handler)
+        
+        # Create renderer and frame
+        logging.info("Initializing web renderer...")
+        renderer = Webpage()
+        
+        logging.info("Initializing e-ink frame...")
+        try:
+            frame = Frame()
+        except Exception as e:
+            logging.error(f"Failed to initialize e-ink display: {e}")
+            logging.error(traceback.format_exc())
+            logging.error("Check if SPI is enabled and the display is properly connected")
+            sys.exit(1)
+        
+        # Run once or continuously based on interval
+        if args.interval <= 0:
+            render_once(args.url, renderer, frame)
+        else:
+            auto_update(args.url, args.interval, renderer, frame)
+            
+    except Exception as e:
+        logging.error(f"Unhandled exception in main: {e}")
+        logging.error(traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == '__main__':
     main() 

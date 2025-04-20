@@ -20,8 +20,31 @@ class Webpage:
             temp_filename = temp.name
         
         try:
-            # Download the image directly using curl
-            subprocess.run(['curl', '-s', '-o', temp_filename, url], check=True, timeout=30)
+            # Download the image directly using curl with better error handling
+            logging.info(f"Running curl command to fetch image from {url}")
+            
+            # Use subprocess with output capture for better diagnostics
+            result = subprocess.run(
+                ['curl', '-v', '--connect-timeout', '30', '-s', '-o', temp_filename, url], 
+                check=False,  # Don't raise exception on non-zero exit
+                timeout=60,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                text=True
+            )
+            
+            # Check if curl was successful
+            if result.returncode != 0:
+                logging.error(f"Curl command failed with code {result.returncode}")
+                logging.error(f"Stderr: {result.stderr}")
+                raise Exception(f"Curl failed with code {result.returncode}")
+                
+            # Check if file was actually created and has content
+            if not os.path.exists(temp_filename) or os.path.getsize(temp_filename) == 0:
+                logging.error("Downloaded file is empty or doesn't exist")
+                raise Exception("Downloaded file is empty or doesn't exist")
+                
+            logging.info(f"Successfully downloaded image to {temp_filename}")
             
             # Open the downloaded image
             image = Image.open(temp_filename)

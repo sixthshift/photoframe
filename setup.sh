@@ -61,6 +61,10 @@ echo "[6/6] Setting up systemd service for autostart..."
 SERVICE_NAME="photoframe"
 SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 
+# Get current username
+USERNAME=$(whoami)
+echo "Setting up service to run as user: $USERNAME"
+
 # Copy the service file to systemd directory with proper substitutions
 echo "Creating systemd service file: $SERVICE_PATH"
 cp photoframe.service /tmp/photoframe.service.tmp
